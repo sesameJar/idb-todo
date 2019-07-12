@@ -1,6 +1,18 @@
-import React from 'react';
-import * as idb from 'idb';
+import React from 'react'
+import * as idb from 'idb'
+import List from '@material-ui/core/List';
 import TodoItem from './TodoItem'
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Box from '@material-ui/core/Box';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import TextField from '@material-ui/core/TextField';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
+import './App.css'
 
 
 const dbPromise = idb.openDB('todo-db', 1, {
@@ -15,8 +27,6 @@ const dbPromise = idb.openDB('todo-db', 1, {
         items.createIndex('status', 'status');
     }
 });
-
-
 class TodoApp extends React.Component {
     constructor(props) {
         super(props);
@@ -24,8 +34,9 @@ class TodoApp extends React.Component {
         this.state = {
             items: [],
             complete :[],
+            form: false,
         };
-
+        
         this.refreshItems();
     }
 
@@ -34,12 +45,12 @@ class TodoApp extends React.Component {
         let db = await dbPromise
         console.log(await db.getAll('items'))
         items = await db.getAll('items')
-
         this.setState({ items, });
     }
 
     async addItem() {
-        if (this.refs.description.value === '') {
+        console.log(`ref is : ${this.description.value}`)
+        if (this.description.value === '' || this.description.value === undefined) {
             this.setState({ addError: "Empty description", });
             return;
         }
@@ -47,8 +58,8 @@ class TodoApp extends React.Component {
         let newItem = {
             status: "open",
             created: Date.now(),
-            description: this.refs.description.value,
-            priority: this.refs.priority.value,
+            description: this.description.value,
+            priority: this.priority.value,
         };
 
         // EDIT ME: store newItem into the DB
@@ -56,8 +67,7 @@ class TodoApp extends React.Component {
         const tx = await db.transaction('items', 'readwrite');
         tx.store.add(newItem);
         await tx.done;
-        
-        this.refs.description.value = '';
+        this.description.value = '';
         this.refreshItems();
     }
 
@@ -72,57 +82,77 @@ class TodoApp extends React.Component {
         this.refreshItems();
     }
 
-    async getCompleteTasks() {
+    async getCompleteTasks(e) {
         let db= await dbPromise;
-        let complete = await db.getAllFromIndex('items', 'status', 'complete')
-        console.log(complete)
-        
-        return complete;
+        let items = await db.getAllFromIndex('items', 'status', this.filter.value)
+        console.log(items)
+        this.setState({items});
+    }  
+
+    openForm(){
+        this.setState({form : !this.state.form})
     }
 
     render() {
-        return <div>
-            {/* <fieldset>
-                <legend>Add TODO Item</legend>
-                <input ref="description" placeholder="description" />
-                <select ref="priority" defaultValue="medium">
-                    <option value="low">low</option>
-                    <option value="medium">medium</option>
-                    <option value="high">high</option>
-                </select>
-                <button onClick={() => this.addItem()}>Add Item</button>
+        return <div className="todoApp">
+            <h2>Todo App!</h2>
+            <div className={`newItemWrapper ${this.state.form  ? ' open' : ''}`}>
+                <Box className="formBox">
 
-                <div style={{ color: 'red' }}>{this.state.addError}</div>
-            </fieldset> */}
-
-            <div>
+                    <TextField
+                        label="Description"
+                        placeholder="Description"
+                        margin="normal"
+                        inputRef={x => this.description = x}
+                    />
+                    <FormControl className="formControl">
+                        <InputLabel htmlFor="age-native-simple">Priority</InputLabel>
+                        <Select
+                        native
+                        
+                        inputRef={x => this.priority = x}
+                        >
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        </Select>
+                    </FormControl>
+                    <Button
+                    margin="normal" 
+                    variant="contained"
+                    onClick={() => this.addItem()}>
+                        Add Item
+                    </Button>
+                    <div style={{ color: 'red' }}>{this.state.addError}</div>
+                </Box>
+            </div>
+            <Divider />
+            <div className={`plusIconBg ${this.state.form  ? ' open' : ''}`}>
+                <Fab color="primary" aria-label="Add" className={`plusIcon ${this.state.form  ? ' open' : ''}`} onClick={()=> this.openForm()}>
+                    <AddIcon />
+                </Fab>
+            </div>
+            <FormControl className="formContrl filter">
+                <InputLabel htmlFor="select-multiple">Filter</InputLabel>
+                <Select
+                native
+                onChange={()=>this.getCompleteTasks()}
+                inputRef={x => this.filter = x}
+                >
+                <option value="complete">Complete</option>
+                <option value="open">Not Complete</option>
+                </Select>
+            </FormControl>
+            <List className="listWrapper">
                 {this.state.items.map((item) => <TodoItem item={item} key={item.id} onCompleted={() => this.completeItem(item.id)} />)}
-            </div>
-            <div>
-                <h3>Using indexes</h3>
-                <button onClick={this.getCompleteTasks}>Show complete tasks</button>
-                <ul>
-                    
-                </ul>
-            </div>
+            </List>
         </div>
     }
 }
 
-
-function TodoItem(props) {
-    let status = props.item.status;
-    if (status === 'open') status = <button onClick={props.onCompleted}>Completed</button>;
-
-    // return <div>
-    //     {props.item.description} / {props.item.priority} / {status}
-    // </div>;
-
-}
-
-
 function App() {
-    return <div>
+    return <div className="App">
+        <CssBaseline />
         <TodoApp />
     </div>;
 }

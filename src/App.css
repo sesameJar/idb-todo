@@ -1,5 +1,17 @@
+#root {
+  background: linear-gradient(
+    to bottom right,
+    rgb(255, 187, 190),
+    rgb(166, 101, 194)
+  );
+  min-height: 100vh;
+}
+
 .App {
   text-align: center;
+  max-width: 600px;
+  position: relative;
+  margin: 0 auto;
 }
 
 .App-logo {
@@ -23,11 +35,83 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.App h2 {
+  margin : 0;
+  padding:  20px 0;
+  text-align: left;
+  color: #282c34;
+}
+
+.listWrapper {
+  width: 100%;
+  max-width: 450px;
+
+  margin: 0 auto !important;
+  border-radius: 10px;
+}
+
+.listWrapper .item {
+  border-radius: 10px;
+  margin-bottom: 15px;
+  color: azure;
+  font-weight: 900;
+  background-color: #282c34;
+  box-shadow: 0 0 6px #888;
+}
+
+.newItemWrapper {
+  padding-top: 10px;
+  height: 0;
+  overflow: hidden;
+  transition:  all 600ms;
+}
+
+.newItemWrapper.open {
+  height: auto;
+  transition: all 500ms;
+}
+
+.newItemWrapper .formBox {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.newItemWrapper .formBox .formControl {
+  margin: 16px;
+  min-width: 120px;
+}
+
+
+.newItemWrapper .formBox button {
+  margin-top: 25px;
+  display: inline;
+}
+
+.App .todoApp .plusIconBg {
+  width: 56px;
+  height: 56px;
+  transform-origin: center;
+  margin-top: -28px;
+}
+
+span.high .MuiSwitch-thumb,
+.App span.high .MuiSwitch-track {
+  background-color: crimson;
+}
+
+span.medium .MuiSwitch-thumb,
+.App span.medium .MuiSwitch-track {
+  background-color: beige;
+}
+
+span.low .MuiSwitch-thumb,
+.App span.low .MuiSwitch-track{
+  background-color: cadetblue
+}
+.App .todoApp .plusIconBg .plusIcon {
+  transition: all 600ms;
+}
+
+.App .todoApp .plusIconBg.open button {
+  transform: rotate(45deg);
 }
